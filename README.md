@@ -1,2 +1,3 @@
 # Twitter-Clone
-Twitter Clone using Django 3.6
+Twitter Clone using Django>=3.6
+
