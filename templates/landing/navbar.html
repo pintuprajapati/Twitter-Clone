@@ -1,17 +1,31 @@
 <nav class="navbar navbar-expand-lg bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Navbar</a>
+      <a class="navbar-brand" href="/">Twitter Clone</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
+            <a class="nav-link active" aria-current="page" href="/">Home</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Link</a>
           </li>
+          {% if request.user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'post-list' %}">Posts</a>
+          </li>
+          {% endif %}
+        
+          <li class="nav-item d-flex">
+            {% if request.user.is_authenticated %}
+            <a class="nav-link" href="#">
+              <!-- <i class="fas fa-user"> -->
+              </i>Profile</a>
+            {% endif %}
+          </li>
+
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Dropdown
@@ -27,12 +41,20 @@
             <a class="nav-link disabled">Disabled</a>
           </li>
         </ul>
+        
         <form class="d-flex" role="search">
-            <div class="input-group">
-              <span class="input-group-text" id="basic-addon1">@</span>
+            <div class="input-group mx-2">
+              <span class="input-group-text " id="basic-addon1">@</span>
               <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
             </div>
         </form>
+        
+        <li class="nav-item d-flex">
+          {% if request.user.is_authenticated %}
+          <a class="nav-link btn btn-primary rounded-pill" href="{% url 'account_logout' %}">Logout</a>
+          {% endif %}
+        </li>
+
       </div>
     </div>
   </nav>

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <!-- All Post - Only Title -->
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-5 col-sm-12 border-bottom">
+           <strong>Write a Post!</strong>
+        </div>
+    </div>
+
+    <!-- Add a Post - Blank Box to write a Post -->
+    <div class="row justify-content-center mt-2">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <form action="" method="POST">
+                {% csrf_token %}
+                {{ form.body }}
+                <div class="">
+                    <button class="btn btn-primary mb-1">Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Show all posts by logged in user -->
+    {% for post in post_list %}
+    <div class="row justify-content-center mt-2">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <p>{{ post.body }}</p>
+            <p>
+                By <strong>{{ post.author }}</strong>
+                | {{ post.created_on }}
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}
