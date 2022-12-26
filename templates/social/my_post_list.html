@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <!-- Show all my posts -->
+    {% for post in post_list %}
+    <div class="row justify-content-center mt-2">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <a href="{% url 'post-detail' post.id %}" style="color: black; text-decoration: none;">
+                <p>{{ post.body }}</p>
+                <p class="mt-3">By <strong>{{ post.author }}</strong> | {{ post.created_on }}</p>
+            </a>
+            <a href="{% url 'post-edit' post.id %}" class="btn btn-primary mb-2">Update Post</a>
+            <a href="{% url 'post-delete' post.id %}" class="btn btn-danger mb-2">Delete Post</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}

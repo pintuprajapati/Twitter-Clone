@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <!-- Back to the Latest Posts -->
+    <div class="row mt-5">
+        <div class="col-md-5 col-sm-6">
+           <a href="{% url 'latest-post-list' %}" class="btn btn-dark">&#8617; Back To Feed</a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-2">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <p>{{ post.body }}</p>
+            <p>
+                By <strong>{{ post.author }}</strong>
+                | {{ post.created_on }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Add a Comment - Blank Box to write a Post -->
+    <div class="row justify-content-center mt-2">
+        <div class="col-md-5 col-sm-12">
+            <form action="" method="POST">
+                {% csrf_token %}
+                {{ form | crispy }}
+                <div class="d-grip gap-2">
+                    <button class="btn btn-primary mt-1">Submit Comment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Show all comments -->
+    {% for comment in comments %}
+    <div class="row justify-content-center mt-2 mb-5 border-bottom">
+        <div class="col-md-5 col-sm-12">
+            <p>{{comment.comment}}</p>
+            <p><strong>{{comment.author}}</strong></p> {{ comment.created_on }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}

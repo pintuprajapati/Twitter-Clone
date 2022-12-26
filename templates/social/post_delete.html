@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <!-- Back to the Latest Posts -->
+    <div class="row mt-5">
+        <div class="col-md-5 col-sm-6">
+            <!-- In generic view, we can use "object.pk" to access the "model object" taht we are passing here -->
+            <a href="{% url 'post-detail' object.pk %}" class="btn btn-dark">&#8617; Back To Post</a>
+        </div>
+    </div>
+
+    <!-- Delete your Post -->
+    <div class="row justify-content-center mt-2">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <form action="" method="POST">
+                {% csrf_token %}
+                <h5>Are you sure?</h5>
+                <p>You are about to delete this post, this cannot be undone</p>
+                <div class="">
+                    <button class="btn btn-danger mb-1">Delete Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

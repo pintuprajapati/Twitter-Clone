@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm, TextInput, EmailInput, Textarea
-from .models  import Post
+from .models  import Post, Comment
 
 class PostForm(forms.ModelForm):
     body = forms.CharField(
@@ -14,13 +14,16 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['body']
-        # widgets = {
-        #     'body': forms.Textarea(
-        #         attrs={'placeholder': 'Write Something Interesting', "rows": "5"}),
-        # }
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.fields["body"].widget = forms.TextInput(attrs={
-    #         "rows": "5"
-    #     })
+class CommentForm(forms.ModelForm):
+    comment = forms.CharField(
+        label='',
+        widget=forms.Textarea(attrs={
+            'rows': '3',
+            'placeholder': 'Comment your opinion...'
+        })
+    )
+
+    class Meta:
+        model = Comment
+        fields = ['comment']
