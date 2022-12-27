@@ -27,11 +27,9 @@
           </li>
           {% endif %}
 
-          {% if request.user.is_authenticated %}
           <li class="nav-item">
             <a class="nav-link" href="{% url 'latest-post-list' %}">Latest Posts</a>
           </li>
-          {% endif %}
         
           <li class="nav-item d-flex">
             {% if request.user.is_authenticated %}

@@ -11,8 +11,10 @@
                 <p>{{ post.body }}</p>
                 <p class="mt-3">By <strong>{{ post.author }}</strong> | {{ post.created_on }}</p>
             </a>
-            <a href="{% url 'post-edit' post.id %}" class="btn btn-primary mb-2">Update Post</a>
-            <a href="{% url 'post-delete' post.id %}" class="btn btn-danger mb-2">Delete Post</a>
+            {% if request.user == post.author %}
+                <a href="{% url 'post-edit' post.id %}" class="btn btn-primary mb-1">Update <i class="fa fa-edit"></i></a>
+                <a href="{% url 'post-delete' post.id %}" class="btn btn-danger mb-1">Delete <i class="fas fa-trash"></i></a>
+            {% endif %}
         </div>
     </div>
     {% endfor %}
