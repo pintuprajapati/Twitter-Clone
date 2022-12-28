@@ -5,8 +5,8 @@
     <!-- Back to the Latest Posts -->
     <div class="row mt-5">
         <div class="col-md-5 col-sm-6">
-            <!-- In generic view, we can use "object.pk" to access the "model object" taht we are passing here -->
-            <a href="{% url 'post-detail' object.pk %}" class="btn btn-dark">&#8617; Back To Post</a>
+            <!-- In generic view, we can also use "object.pk" to access the "model object" taht we are passing here -->
+            <a href="{% url 'post-detail' comment.post.pk %}" class="btn btn-dark">&#8617; Back To Post</a>
         </div>
     </div>
 

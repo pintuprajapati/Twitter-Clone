@@ -17,7 +17,7 @@ class PostListView(View):
 
     def get(self, request, *args, **kwargs):
         """
-        It will show all the posts/tweets on the plateform - ordered by latest date
+        It will show all the posts/tweets on the platform - ordered by latest date
         """
         posts = Post.objects.all().order_by('-created_on') # all posts - ordered by latest date
         form = PostForm()
@@ -51,6 +51,9 @@ class PostListView(View):
 
 @login_required(login_url='index')
 def my_posts(request):
+    """
+    Logged in user can see all of his/her posts/tweets in "My Posts" navbar field
+    """
     posts = Post.objects.filter(author=request.user).order_by('-created_on') # all posts - ordered by latest date
     form = PostForm()
 
@@ -60,10 +63,16 @@ def my_posts(request):
     }
     return render(request, 'social/my_post_list.html', context)
 
-# To comment on a post
-class PostDetailView(LoginRequiredMixin, View):
-    # To show the comment
+
+class PostDetailView(View):
+    """
+    Any user can see all the comments on the post
+    Only logged in user can comment on the post
+    """
     def get(self, request, pk, *args, **kwargs):
+        """
+        Show all comment(s) of a post/tweet
+        """
         post = Post.objects.get(pk=pk)
         form = CommentForm()
 
@@ -77,8 +86,11 @@ class PostDetailView(LoginRequiredMixin, View):
 
         return render(request, 'social/post_detail.html', context)
 
-    # To write a comment and save it
+    @method_decorator(login_required)
     def post(self, request, pk, *args, **kwargs):
+        """
+        Only logged in user can Write a comment on a post
+        """
         post = Post.objects.get(pk=pk)
         form = CommentForm(request.POST)
 
@@ -99,21 +111,23 @@ class PostDetailView(LoginRequiredMixin, View):
 
         return render(request, 'social/post_detail.html', context)
 
-# Update view
+
 class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    If user of the post/tweet is logged in then he/she can update the post
+    Else it will throw 403 Forbidden Error
+    """
     model = Post
     fields = ['body']
     template_name = 'social/post_edit.html'
 
-    # to redirect the same page after editing
     def get_success_url(self):
         pk = self.kwargs['pk']
-        return reverse_lazy('post-detail', kwargs={'pk': pk})
-
+        return reverse_lazy('post-detail', kwargs={'pk': pk}) # to redirect on the same page after editing the post
 
     def test_func(self):
         """
-        checks whether current logged in user matchs the author of the post or not
+        checks whether current logged in user matches the author of the post or not
         Returns Boolean
         If True: User can edit the post
         If False: User can't edit the post (will throw 403 Forbidden Error)
@@ -121,45 +135,55 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         extra: imported from "UserPassesTestMixin"
         """
         post = self.get_object() # current post's object
-        return self.request.user == post.author
+        user_of_post = self.request.user == post.author # True or False
+        return user_of_post
 
 
-# Delete The Post View
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    If user of the post/tweet is logged in then he/she can delete the post
+    Else it will throw 403 Forbidden Error
+    """
     model = Post
     template_name = 'social/post_delete.html'
-    success_url = reverse_lazy('my-post-list') # once deleted, go back to latest post list page
+    success_url = reverse_lazy('my-post-list') # once deleted, redirect back to 'my-post-list' url
 
     def test_func(self):
         """
-        checks whether current logged in user matchs the author of the post or not
+        checks whether current logged in user matches the author of the post or not
         Returns Boolean
-        If True: User can edit the post
-        If False: User can't edit the post (will throw 403 Forbidden Error)
+        If True: User can delete the post
+        If False: User can't delete the post (will throw 403 Forbidden Error)
 
         extra: imported from "UserPassesTestMixin"
         """
         post = self.get_object() # current post's object
-        return self.request.user == post.author
+        user_of_post = self.request.user == post.author # True or False
+        return user_of_post
 
-# Delete the Comment
+
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    If user of the post/tweet is logged in then he/she can delete the comment on the post
+    Else it will throw 403 Forbidden Error
+    """
     model = Comment
     template_name = 'social/comment_delete.html'
 
-    # to redirect the same page after editing
     def get_success_url(self):
         pk = self.kwargs['post_pk']
-        return reverse_lazy('post-detail', kwargs={'pk': pk})
+        print("➡ pk :", pk)
+        return reverse_lazy('post-detail', kwargs={'pk': pk}) # Will redirect to the that 'post' after comment is deleted
     
     def test_func(self):
         """
-        checks whether current logged in user matchs the author of the post or not
+        checks whether current logged in user matches the author of the comment or not
         Returns Boolean
-        If True: User can edit the post
-        If False: User can't edit the post (will throw 403 Forbidden Error)
+        If True: User can edit the comment
+        If False: User can't edit the comment (will throw 403 Forbidden Error)
 
         extra: imported from "UserPassesTestMixin"
         """
-        post = self.get_object() # current post's object
-        return self.request.user == post.author
+        comment = self.get_object() # current comment's object
+        user_of_comment = self.request.user == comment.author # True or False
+        return user_of_comment
