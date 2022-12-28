@@ -1,6 +1,6 @@
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.views import View
-from .models import Post, Comment
+from .models import Post, Comment, UserProfile
 from .forms import PostForm, CommentForm
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -63,7 +63,6 @@ def my_posts(request):
     }
     return render(request, 'social/my_post_list.html', context)
 
-
 class PostDetailView(View):
     """
     Any user can see all the comments on the post
@@ -111,7 +110,6 @@ class PostDetailView(View):
 
         return render(request, 'social/post_detail.html', context)
 
-
 class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """
     If user of the post/tweet is logged in then he/she can update the post
@@ -138,7 +136,6 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         user_of_post = self.request.user == post.author # True or False
         return user_of_post
 
-
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """
     If user of the post/tweet is logged in then he/she can delete the post
@@ -160,7 +157,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         post = self.get_object() # current post's object
         user_of_post = self.request.user == post.author # True or False
         return user_of_post
-
 
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """
@@ -187,3 +183,18 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         comment = self.get_object() # current comment's object
         user_of_comment = self.request.user == comment.author # True or False
         return user_of_comment
+
+class ProfileView(View):
+    def get(self, request, pk, *args, **kwargs):
+        profile = UserProfile.objects.get(pk=pk) # If primary key matches then store the object into profile
+        user = profile.user
+        posts = Post.objects.filter(author=user).order_by('-created_on')
+
+        context = {
+            'profile': profile,
+            'user': user,
+            'posts': posts
+        }
+
+        return render(request, 'social/profile.html', context)
+        
