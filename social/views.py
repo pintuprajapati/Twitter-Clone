@@ -8,8 +8,6 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
-
-
 class PostListView(View):
     """
     Any user can see the latest post/tweet but only logged in user can write a new post/tweet
@@ -19,7 +17,11 @@ class PostListView(View):
         """
         It will show all the posts/tweets on the platform - ordered by latest date
         """
-        posts = Post.objects.all().order_by('-created_on') # all posts - ordered by latest date
+        try:
+            posts = Post.get_post_data("all")
+        except:
+            post = None
+            return render(request, "social/error_page.html")
         form = PostForm()
 
         context = {
@@ -33,9 +35,13 @@ class PostListView(View):
         """
         Only logged in user can write a new post/tweet
         """
-        posts = Post.objects.filter(author=request.user).order_by('-created_on')
-        form = PostForm(request.POST)
+        try:
+            posts = Post.get_post_data("filter", request.user)
+        except:
+            post = None
+            return render(request, "social/error_page.html")
 
+        form = PostForm(request.POST)
         if form.is_valid():
             new_post = form.save(commit=False) # Creates object "new_post" but doesn't save it into database (created on memory level only)
             new_post.author = request.user 
@@ -49,17 +55,20 @@ class PostListView(View):
 
         return render(request, 'social/post_list.html', context)
 
+
 @login_required(login_url='index')
 def my_posts(request):
     """
     Logged in user can see all of his/her posts/tweets in "My Posts" navbar field
     """
-    posts = Post.objects.filter(author=request.user).order_by('-created_on') # all posts - ordered by latest date
-    form = PostForm()
-
+    try:
+        posts = Post.get_post_data("filter", request.user)
+    except:
+        post = None
+        return render(request, "social/error_page.html")
+    
     context = {
         'post_list': posts,
-        'form': form
     }
     return render(request, 'social/my_post_list.html', context)
 
@@ -72,7 +81,11 @@ class PostDetailView(View):
         """
         Show all comment(s) of a post/tweet
         """
-        post = Post.objects.get(pk=pk)
+        try:
+            post = Post.get_post_data("get", pk)
+        except:
+            post = None
+            return render(request, "social/error_page.html")
         form = CommentForm()
 
         comments = Comment.objects.filter(post=post).order_by('-created_on')
@@ -90,7 +103,11 @@ class PostDetailView(View):
         """
         Only logged in user can Write a comment on a post
         """
-        post = Post.objects.get(pk=pk)
+        try:
+            posts = Post.get_post_data("get", pk)
+        except:
+            post = None
+            return render(request, "social/error_page.html")
         form = CommentForm(request.POST)
 
         if form.is_valid():
@@ -168,7 +185,6 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         pk = self.kwargs['post_pk']
-        print("➡ pk :", pk)
         return reverse_lazy('post-detail', kwargs={'pk': pk}) # Will redirect to the that 'post' after comment is deleted
     
     def test_func(self):
@@ -188,7 +204,11 @@ class ProfileView(View):
     def get(self, request, pk, *args, **kwargs):
         profile = UserProfile.objects.get(pk=pk) # If primary key matches then store the object into profile
         user = profile.user
-        posts = Post.objects.filter(author=user).order_by('-created_on')
+        try:
+            posts = Post.get_post_data("filter", profile.user)
+        except:
+            post = None
+            return render(request, "social/error_page.html")
 
         context = {
             'profile': profile,
@@ -197,4 +217,23 @@ class ProfileView(View):
         }
 
         return render(request, 'social/profile.html', context)
-        
+
+# If post/comment doesn't exists
+def error_view(request):
+    return render(request, "social/error_page.html")
+
+# To edit the profile
+class ProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = UserProfile
+    fields = ["name", "bio", "birth_date", "location", "picture"]
+    template_name = "social/profile_edit.html"
+
+    # Once submitted, redirect to same url
+    def get_success_url(self):
+        pk = self.kwargs["pk"]
+        return reverse_lazy('pk', kwargs={'pk': pk})
+
+    def test_func(self):
+        profile = self.get_object() # current profile's object
+        profile_of_user = self.request.user == profile.user
+        return profile_of_user # True or False

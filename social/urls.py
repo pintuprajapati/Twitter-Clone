@@ -8,4 +8,5 @@ urlpatterns = [
     path('post/delete/<int:pk>', PostDeleteView.as_view(), name='post-delete'),
     path('post/<int:post_pk>/comment/delete/<int:pk>', CommentDeleteView.as_view(), name='comment-delete'),
     path('profile/<int:pk>', ProfileView.as_view(), name='profile'), 
+    path('error/', error_view, name='error-page'), 
 ]

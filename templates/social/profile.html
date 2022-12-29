@@ -12,29 +12,50 @@
     </div>
 
     <div class="row justify-content-center mt-5">
-        <div class="card shadow-sm col-md-8 col-sm-12 border-bottom px-5 pt-3">
+        <div class="card shadow-sm col-md-8 col-sm-12 border-bottom px-5 pt-3 pb-3">
             <img src="{{ profile.picture.url }}" alt="" class="rounded-circle" width="100", height="100" />
+
+            {% if profile.user %} 
+            <p class="mt-2"><strong>Username: </strong> {{ profile.user }}</p>
+            {% endif %}
+            
             {% if profile.name %}
-            <h3 class="py-4">{{ profile.name }}</h3>
+            <p class=""><strong>Name: </strong> {{ profile.user }}</p>
+            {% else %}
+            <p class=""><strong>Name: </strong></p>
             {% endif %}
 
             {% if profile.location %}
-            <h3 class="py-4">{{ profile.location }}</h3>
+            <p class=""><strong>Location: </strong> {{ profile.location }}</p>
+            {% else %}
+            <p class=""><strong>Location: </strong></p>
             {% endif %}
 
             {% if profile.birth_date %}
-            <h3 class="py-4">{{ profile.birth_date }}</h3>
+            <p class=""><strong>DOB: </strong> {{ profile.birth_date }}</p>
+            {% else %}
+            <p class=""><strong>DOB: </strong></p>
             {% endif %}
 
             {% if profile.bio %}
-            <h3 class="py-4">{{ profile.bio }}</h3>
+            <p class=""><strong>Bio: </strong> {{ profile.bio }}</p>
+            {% else %}
+            <p class=""><strong>Bio: </strong></p>
             {% endif %}
         </div>
     </div>
 
+    <div class="container">
+        <!-- Write a post -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-8 col-sm-12 border-bottom">
+             <strong>All your Posts!</strong>
+            </div>
+    </div>
+
     <!-- Show all latest posts -->
     {% for post in posts %}
-    <div class="row justify-content-center mt-5">
+    <div class="row justify-content-center mt-3">
         <div class="col-md-8 col-sm-12 border-bottom">
             <a href="{% url 'post-detail' post.id %}" style="color: black; text-decoration: none;">
             <p>{{ post.body }}</p>
