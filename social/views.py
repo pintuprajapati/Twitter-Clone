@@ -20,7 +20,7 @@ class PostListView(View):
         try:
             posts = Post.get_post_data("all")
         except:
-            post = None
+            posts = None
             return render(request, "social/error_page.html")
         form = PostForm()
 
@@ -38,7 +38,7 @@ class PostListView(View):
         try:
             posts = Post.get_post_data("filter", request.user)
         except:
-            post = None
+            posts = None
             return render(request, "social/error_page.html")
 
         form = PostForm(request.POST)
@@ -64,7 +64,7 @@ def my_posts(request):
     try:
         posts = Post.get_post_data("filter", request.user)
     except:
-        post = None
+        posts = None
         return render(request, "social/error_page.html")
     
     context = {
@@ -104,7 +104,7 @@ class PostDetailView(View):
         Only logged in user can Write a comment on a post
         """
         try:
-            posts = Post.get_post_data("get", pk)
+            post = Post.get_post_data("get", pk)
         except:
             post = None
             return render(request, "social/error_page.html")
@@ -231,7 +231,7 @@ class ProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     # Once submitted, redirect to same url
     def get_success_url(self):
         pk = self.kwargs["pk"]
-        return reverse_lazy('pk', kwargs={'pk': pk})
+        return reverse_lazy('profile', kwargs={'pk': pk})
 
     def test_func(self):
         profile = self.get_object() # current profile's object

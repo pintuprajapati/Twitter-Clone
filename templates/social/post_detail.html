@@ -15,7 +15,7 @@
             <p>{{ post.body }}</p>
             <p>
                 By <strong>{{ post.author }}</strong>
-                | {{ post.created_on }}
+                 | {{ post.created_on }}
             </p>
             {% if request.user == post.author %}
                 <a href="{% url 'post-edit' post.id %}" class="btn btn-primary mb-1">Update <i class="fa fa-edit"></i></a>

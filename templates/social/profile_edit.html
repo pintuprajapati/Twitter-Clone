@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <!-- Back to the Latest Posts -->
+    <div class="row mt-5">
+        <div class="col-md-5 col-sm-6">
+            <a href="{% url 'profile' object.pk %}" class="btn btn-dark">&#8617; Back To Profile</a>
+        </div>
+    </div>
+
+    <!-- Update your post -->
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-5 col-sm-12 border-bottom">
+           <strong>Update Your Profile!</strong>
+        </div>
+    </div>
+
+    <!-- Update your Post - Blank Box to update a Post -->
+    <div class="row justify-content-center mt-2">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form | crispy }}
+                <div class="">
+                    <button class="btn btn-primary mb-1 mt-2">Update Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
