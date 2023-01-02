@@ -18,23 +18,11 @@
                  | {{ post.created_on }}
             </p>
             {% if request.user == post.author %}
-                <a href="{% url 'post-edit' post.id %}" class="btn btn-primary mb-1">Update <i class="fa fa-edit"></i></a>
+                <a href="{% url 'post-edit' post.id %}" class="btn btn-primary mb-1">Update <i class="fa fa-edit"></i></a>  
                 <a href="{% url 'post-delete' post.id %}" class="btn btn-danger mb-1">Delete <i class="fas fa-trash"></i></a>
             {% endif %}
         </div>
     </div>
-
-        <!-- Delete your Post -->
-        <!-- <div class="row justify-content-center mt-2">
-            <div class="col-md-5 col-sm-12 border-bottom">
-                <form action="" method="POST">
-                    {% csrf_token %}
-                    <div class="">
-                        <button class="btn btn-danger mb-1">Delete Post</button>
-                    </div>
-                </form>
-            </div>
-        </div> -->
 
     <!-- Add a Comment - Blank Box to write a Post -->
     <div class="row justify-content-center mt-2">
@@ -63,4 +51,5 @@
     </div>
     {% endfor %}
 </div>
+
 {% endblock content %}

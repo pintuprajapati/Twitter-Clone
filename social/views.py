@@ -127,7 +127,7 @@ class PostDetailView(View):
 
         return render(request, 'social/post_detail.html', context)
 
-class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class PostEditView(LoginRequiredMixin, UpdateView):
     """
     If user of the post/tweet is logged in then he/she can update the post
     Else it will throw 403 Forbidden Error
@@ -138,20 +138,19 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def get_success_url(self):
         pk = self.kwargs['pk']
+        print("➡ pk :", pk)
         return reverse_lazy('post-detail', kwargs={'pk': pk}) # to redirect on the same page after editing the post
 
-    def test_func(self):
-        """
-        checks whether current logged in user matches the author of the post or not
-        Returns Boolean
-        If True: User can edit the post
-        If False: User can't edit the post (will throw 403 Forbidden Error)
-
-        extra: imported from "UserPassesTestMixin"
-        """
-        post = self.get_object() # current post's object
-        user_of_post = self.request.user == post.author # True or False
-        return user_of_post
+    def get(self, request, *args, **kwargs):
+        try:
+            post = self.get_object()
+            print("➡ post :", post)
+            if self.request.user == post.author:
+                return super().get(request, *args, **kwargs)
+            else:
+                return render(request, 'social/not_allowed.html')
+        except:
+            return render(request, 'social/error_page.html')
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """
