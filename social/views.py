@@ -129,8 +129,8 @@ class PostDetailView(View):
 
 class PostEditView(LoginRequiredMixin, UpdateView):
     """
-    If user of the post/tweet is logged in then he/she can update the post
-    Else it will throw 403 Forbidden Error
+    If user of the post/tweet is logged in then he/she can delete the post
+    Else it will show relevert error pages
     """
     model = Post
     fields = ['body']
@@ -138,13 +138,18 @@ class PostEditView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         pk = self.kwargs['pk']
-        print("➡ pk :", pk)
         return reverse_lazy('post-detail', kwargs={'pk': pk}) # to redirect on the same page after editing the post
 
     def get(self, request, *args, **kwargs):
+        """
+        Will check whether current logged in user is the same as post's author
+        If True (post's author and logged in user are same) -> Redirect to "post-edit" page
+        If Flase (Not the same user) -> Redirect to "user is not allowed to edit this post" page
+
+        If Post doesn't exists in DB -> Redirect to "Error Page"
+        """
         try:
             post = self.get_object()
-            print("➡ post :", post)
             if self.request.user == post.author:
                 return super().get(request, *args, **kwargs)
             else:
@@ -152,32 +157,36 @@ class PostEditView(LoginRequiredMixin, UpdateView):
         except:
             return render(request, 'social/error_page.html')
 
-class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class PostDeleteView(LoginRequiredMixin, DeleteView):
     """
     If user of the post/tweet is logged in then he/she can delete the post
-    Else it will throw 403 Forbidden Error
+    Else it will show relevert error pages
     """
     model = Post
     template_name = 'social/post_delete.html'
     success_url = reverse_lazy('my-post-list') # once deleted, redirect back to 'my-post-list' url
 
-    def test_func(self):
+    def get(self, request, *args, **kwargs):
         """
-        checks whether current logged in user matches the author of the post or not
-        Returns Boolean
-        If True: User can delete the post
-        If False: User can't delete the post (will throw 403 Forbidden Error)
+        Will check whether current logged in user is the same as post's author
+        If True (post's author and logged in user are same) -> Redirect to "post-edit" page
+        If Flase (Not the same user) -> Redirect to "user is not allowed to edit this post" page
 
-        extra: imported from "UserPassesTestMixin"
+        If Post doesn't exists in DB -> Redirect to "Error Page"
         """
-        post = self.get_object() # current post's object
-        user_of_post = self.request.user == post.author # True or False
-        return user_of_post
+        try:
+            post = self.get_object()
+            if self.request.user == post.author:
+                return super().get(request, *args, **kwargs)
+            else:
+                return render(request, 'social/not_allowed.html')
+        except:
+            return render(request, 'social/error_page.html')
 
-class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class CommentDeleteView(LoginRequiredMixin, DeleteView):
     """
     If user of the post/tweet is logged in then he/she can delete the comment on the post
-    Else it will throw 403 Forbidden Error
+    Else it will show relevert error pages
     """
     model = Comment
     template_name = 'social/comment_delete.html'
@@ -185,19 +194,23 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def get_success_url(self):
         pk = self.kwargs['post_pk']
         return reverse_lazy('post-detail', kwargs={'pk': pk}) # Will redirect to the that 'post' after comment is deleted
-    
-    def test_func(self):
-        """
-        checks whether current logged in user matches the author of the comment or not
-        Returns Boolean
-        If True: User can edit the comment
-        If False: User can't edit the comment (will throw 403 Forbidden Error)
 
-        extra: imported from "UserPassesTestMixin"
+    def get(self, request, *args, **kwargs):
         """
-        comment = self.get_object() # current comment's object
-        user_of_comment = self.request.user == comment.author # True or False
-        return user_of_comment
+        Will check whether current logged in user is the same as Comment's author
+        If True (post's author and logged in user are same) -> Redirect to "post-delete" page
+        If Flase (Not the same user) -> Redirect to "user is not allowed" page
+
+        If Comment doesn't exists in DB -> Redirect to "Error Page"
+        """
+        try:
+            comment = self.get_object()
+            if self.request.user == comment.author:
+                return super().get(request, *args, **kwargs)
+            else:
+                return render(request, 'social/not_allowed.html')
+        except:
+            return render(request, 'social/error_page.html')
 
 class ProfileView(View):
     def get(self, request, pk, *args, **kwargs):
@@ -222,7 +235,7 @@ def error_view(request):
     return render(request, "social/error_page.html")
 
 # To edit the profile
-class ProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class ProfileEditView(LoginRequiredMixin, UpdateView):
     model = UserProfile
     fields = ["name", "bio", "birth_date", "location", "picture"]
     template_name = "social/profile_edit.html"
@@ -232,7 +245,19 @@ class ProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         pk = self.kwargs["pk"]
         return reverse_lazy('profile', kwargs={'pk': pk})
 
-    def test_func(self):
-        profile = self.get_object() # current profile's object
-        profile_of_user = self.request.user == profile.user
-        return profile_of_user # True or False
+    def get(self, request, *args, **kwargs):
+        """
+        Will check whether current logged in user is the same as Profile User
+        If True -> Redirect to "post-update" page
+        If Flase (Not the same user) -> Redirect to "user is not allowed" page
+
+        If Profile doesn't exists in DB -> Redirect to "Error Page"
+        """
+        try:
+            profile = self.get_object()
+            if self.request.user == profile.user:
+                return super().get(request, *args, **kwargs)
+            else:
+                return render(request, 'social/not_allowed.html')
+        except:
+            return render(request, 'social/error_page.html')

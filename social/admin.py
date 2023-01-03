@@ -16,4 +16,4 @@ class CommentModelAdmin(admin.ModelAdmin):
 # UserProfile model registration
 @admin.register(UserProfile)
 class UserProfileModelAdmin(admin.ModelAdmin):
-    list_display = ('user', 'name', 'bio', 'birth_date', 'location', 'picture', )
+    list_display = ('user', 'name', 'bio', 'birth_date', 'location', 'picture')
