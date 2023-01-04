@@ -48,6 +48,25 @@
             {% else %}
             <p class=""><strong>Bio: </strong></p>
             {% endif %}
+
+            <div class="">
+                <p>Followers: {{ number_of_followers }}</p>
+                {% if user == request.user %}
+                <!-- User seeing his/her own profile then Do Nothing -->
+                {% else %}
+                    {% if is_following %}
+                        <form action="{% url 'remove-follower' profile.pk %}" method="post">
+                            {% csrf_token %}
+                            <button class="btn btn-outline-danger">Unfollow</button>
+                        </form>
+                    {% else %}
+                        <form action="{% url 'add-follower' profile.pk %}" method="post">
+                            {% csrf_token %}
+                            <button class="btn btn-outline-danger">Follow</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            </div>
         </div>
     </div>
 
@@ -77,3 +96,22 @@
     {% endfor %}
 </div>
 {% endblock content %}
+
+<!-- <script>
+    $(document).on('click', '#unfollow-btn', function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '{% url "social:unfollow" %}',
+            data: {
+                postid: $('#unfollow-btn').val(),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                action: 'post'
+            },
+            success: function(json) {
+                document.getElementById("unfollow-btn").innerHTML = json["result"]
+            },
+            error: function(xhr, errmsg, err) {}
+        });
+    });
+</script> -->

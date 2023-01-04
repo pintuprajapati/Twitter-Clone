@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponseRedirect, HttpResponse
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse, redirect
 from django.views import View
 from .models import Post, Comment, UserProfile
 from .forms import PostForm, CommentForm
@@ -54,7 +54,6 @@ class PostListView(View):
         }
 
         return render(request, 'social/post_list.html', context)
-
 
 @login_required(login_url='index')
 def my_posts(request):
@@ -216,6 +215,21 @@ class ProfileView(View):
     def get(self, request, pk, *args, **kwargs):
         profile = UserProfile.objects.get(pk=pk) # If primary key matches then store the object into profile
         user = profile.user
+
+        followers = profile.followers.all()        
+        number_of_followers = len(followers)
+
+        if number_of_followers == 0:
+            is_following = False
+            print("➡ is_following :", is_following)
+        else:                
+            for follower in followers:
+                if follower == request.user:
+                    is_following = True
+                    break
+                else:
+                    is_following = False
+
         try:
             posts = Post.get_post_data("filter", profile.user)
         except:
@@ -225,7 +239,9 @@ class ProfileView(View):
         context = {
             'profile': profile,
             'user': user,
-            'posts': posts
+            'posts': posts,
+            'number_of_followers': number_of_followers,
+            'is_following': is_following
         }
 
         return render(request, 'social/profile.html', context)
@@ -260,4 +276,22 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
             else:
                 return render(request, 'social/not_allowed.html')
         except:
-            return render(request, 'social/error_page.html')
+            return render(request, 'social/error_page.html')      
+
+class AddFollower(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        profile = UserProfile.objects.get(pk=pk)
+        print("➡ profile :", profile)
+        profile.followers.add(request.user) # adding logged-in user to the list of followers by using ".add()"
+    
+        return redirect('profile', pk=profile.pk)
+
+
+class RemoveFollower(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        profile = UserProfile.objects.get(pk=pk)
+        print("➡ profile :", profile)
+
+        profile.followers.remove(request.user) # remove from followers list
+
+        return redirect('profile', pk=profile.pk)
