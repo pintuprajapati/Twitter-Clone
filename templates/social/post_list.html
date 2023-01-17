@@ -35,6 +35,27 @@
                     </a>
                     | {{ post.created_on }}
                 </p>
+                <div class="d-flex flex-row">
+                    <form action="{% url 'like' post.pk %}" class="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" style="background-color: transparent; border: none; box-shadow: none;">
+                            <i class="far fa-thumbs-up">
+                                <span> {{ post.likes.all.count}} </span>
+                            </i>
+                        </button>
+                    </form>
+
+                    <form action="{% url 'dislike' post.pk %}" class="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" style="background-color: transparent; border: none; box-shadow: none;">
+                            <i class="far fa-thumbs-down">
+                                <span> {{ post.dislikes.all.count}} </span>
+                            </i>
+                        </button>
+                    </form>
+                </div>
             </a>
         </div>
     </div>

@@ -197,7 +197,7 @@ class CommentDeleteView(LoginRequiredMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         """
         Will check whether current logged in user is the same as Comment's author
-        If True (post's author and logged in user are same) -> Redirect to "post-delete" page
+        If True (comment's author and logged in user are same) -> Redirect to "post-delete" page
         If Flase (Not the same user) -> Redirect to "user is not allowed" page
 
         If Comment doesn't exists in DB -> Redirect to "Error Page"
@@ -221,7 +221,6 @@ class ProfileView(View):
 
         if number_of_followers == 0:
             is_following = False
-            print("➡ is_following :", is_following)
         else:                
             for follower in followers:
                 if follower == request.user:
@@ -281,17 +280,107 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
 class AddFollower(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         profile = UserProfile.objects.get(pk=pk)
-        print("➡ profile :", profile)
         profile.followers.add(request.user) # adding logged-in user to the list of followers by using ".add()"
-    
         return redirect('profile', pk=profile.pk)
 
 
 class RemoveFollower(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         profile = UserProfile.objects.get(pk=pk)
-        print("➡ profile :", profile)
-
         profile.followers.remove(request.user) # remove from followers list
-
         return redirect('profile', pk=profile.pk)
+
+class AddLike(LoginRequiredMixin, View):
+    print("➡ AddLike entered :")
+    """
+    When clicking on LIKE button
+    Add like to the post if user has not liked yet. If liked then remove the like
+    If disliked alredy then remove it and add a like
+    """    
+    def get(self, request, pk, *args, **kwargs):
+        print("➡ pk for add like :", pk)
+        # post = Post.get_post_data("get", pk)
+        post = Post.objects.get(pk=pk)
+
+        is_disike = False 
+        for dislike in post.dislikes.all():
+            if dislike == request.user:
+                is_disike = True
+                break
+        if is_disike:
+            post.dislikes.remove(request.user) # if disliked the post already then remove the dislike
+
+        is_like = False 
+        print("➡ is_like :", post.likes.all())
+        for like in post.likes.all():
+            if like == request.user:
+                is_like = True
+                break
+            if not is_like:
+                post.likes.add(request.user) # if not liked then add a like
+            if is_like:
+                post.likes.remove(request.user) # if liked then remove a like 
+
+        # checked if the post's author and logged-in users are same or not
+        # try:
+        #     post = self.get_object()
+        #     if self.request.user == post.author:
+        #         return super().get(request, *args, **kwargs)
+        #     else:
+        #         return render(request, 'social/not_allowed.html')
+        # except:
+        #     return render(request, 'social/error_page.html')
+        
+        next = request.POST.get('next', '/latest-posts/')
+        return HttpResponseRedirect(next)
+        
+          
+class AddDisLike(LoginRequiredMixin, View):
+    print("➡ AddDisLike :")
+
+    """
+    When clicking on DISLIKE button
+    Add dislike to the post if user has not disliked yet. If disliked then remove the like
+    If liked alredy then remove it and add a dislike
+    """
+    
+    def get(self, request, pk, *args, **kwargs):
+        print("➡ pk :", pk)
+
+        # # checked if the post's author and logged-in users are same or not
+        # try:
+        #     post = self.get_object()
+        #     if self.request.user == post.author:
+        #         return super().get(request, *args, **kwargs)
+        #     else:
+        #         return render(request, 'social/not_allowed.html')
+        # except:
+        #     return render(request, 'social/error_page.html')
+
+        # post = Post.get_post_data("get", pk)
+        post = Post.objects.get(pk=pk)
+        print("➡ post :", post)
+
+        is_like = False 
+        for like in post.likes.all():
+            if like == request.user:
+                is_like = True
+                break
+        if is_like:
+            post.likes.remove(request.user)# if user liked the post already then remove the like
+
+        is_dislike = False 
+        print("➡ is_disike :", post.dislikes.all())
+        for dislike in post.dislikes.all():
+            if dislike == request.user:
+                is_dislike = True
+                break
+            if not is_dislike:
+                post.dislikes.add(request.user) # if not disliked then add a dislike
+            if is_dislike:
+                post.dislikes.remove(request.user) # if disliked then remove a dislike
+        
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
+
+
